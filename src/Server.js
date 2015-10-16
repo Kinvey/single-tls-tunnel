@@ -26,7 +26,6 @@ function Server(options) {
   }, function(connection) {
     connections.push(connection);
     connection.on('close', function() {
-      console.log('closing...');
       connections.splice(connections.indexOf(connection), 1);
     });
   });
@@ -34,7 +33,6 @@ function Server(options) {
   function onConnectionAfterClientAuthenticated(connection) {
     // this is required as the server allows connections to be half open
     connection.on('end', function() {
-      console.log('ended...');
       connection.end();
     });
     var valve = new Valve(connection, {paused: true});
@@ -49,6 +47,8 @@ function Server(options) {
   });
 
   httpServer.on('upgrade', function(request, socket/*, head*/) {
+    socket.setTimeout(0); // Disable socket timeout keeping it alive.
+
     socket.write('HTTP/1.1 101 Web Socket Protocol Handshake\r\n' +
                  'Upgrade: websocket\r\n' +
                  'Connection: Upgrade\r\n' +
