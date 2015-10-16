@@ -1,5 +1,8 @@
+// Strict mode.
+'use strict';
+
 var net = require('net');
-var client = net.connect(8080, function() {
+net.connect(8080, function() {
   //client.setKeepAlive(true);
   console.log('client connected');
   setTimeout(function() {

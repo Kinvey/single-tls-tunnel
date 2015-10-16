@@ -1,3 +1,6 @@
+// Strict mode.
+'use strict';
+
 var MockClient = require('./MockCLient'),
     fs = require('fs');
 

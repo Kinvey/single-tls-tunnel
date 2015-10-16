@@ -1,3 +1,6 @@
+// Strict mode.
+'use strict';
+
 // TODO:
 // Should reject unauthorized servers
 // Should reject incorrect upgrade response
@@ -23,7 +26,7 @@ var UPSTREAM_PORT = 8080,
 var SERVER_OPTIONS = {
   key: SERVER_KEY,
   cert: SERVER_CERT,
-  ca: [CLIENT_CERT], 
+  ca: [CLIENT_CERT],
   requireCert: true,
   rejectUnauthorized: true
 };
@@ -35,11 +38,11 @@ var CLIENT_UPSTREAM_OPTIONS = {
   ca: [SERVER_CERT],
   rejectUnauthorized: true
 };
-    
+
 var CLIENT_DOWNSTREAM_OPTIONS = {
   port: DOWNSTREAM_PORT
 };
-    
+
 describe('Client', function() {
   it('should make an HTTP connection to the server and request an upgrade to TLS', function(done) {
     var client = new Client(CLIENT_UPSTREAM_OPTIONS, CLIENT_DOWNSTREAM_OPTIONS);
@@ -49,7 +52,7 @@ describe('Client', function() {
     ], done);
 
     var server = http.createServer();
-    server.on('upgrade', function(req, socket, head) {
+    server.on('upgrade', function(req, socket/*, head*/) {
       socket.on('end', function() {
         socket.destroy();
       });
@@ -57,7 +60,7 @@ describe('Client', function() {
                    'Upgrade: websocket\r\n' +
                    'Connection: Upgrade\r\n' +
                    '\r\n');
-                   
+
       var securePair = tls.createSecurePair(
         crypto.createCredentials({
          key: SERVER_OPTIONS.key,
@@ -68,8 +71,7 @@ describe('Client', function() {
         SERVER_OPTIONS.requireCert,
         SERVER_OPTIONS.rejectUnauthorized
       );
-      var connection = securePair.cleartext,
-          encrypted = securePair.encrypted;
+      var encrypted = securePair.encrypted;
 
       socket.pipe(encrypted).pipe(socket);
 
@@ -83,13 +85,13 @@ describe('Client', function() {
         client.on('end', function() {
           server.close(function() {
             checklist.check('closed');
-          });    
+          });
         });
         client.end();
       });
     });
   });
-  
+
   it('should emit an error when connection fails', function(done) {
     var client = new Client(CLIENT_UPSTREAM_OPTIONS);
     client.connect();
@@ -98,7 +100,7 @@ describe('Client', function() {
       done();
     });
   });
-  
+
   it('should forward muliplexed streams from the upstream server to the downstream server', function(done) {
     var client = new Client(CLIENT_UPSTREAM_OPTIONS, CLIENT_DOWNSTREAM_OPTIONS);
     var checklist = new Checklist([
@@ -110,7 +112,7 @@ describe('Client', function() {
     ], done);
 
     var upstreamServer = http.createServer();
-    upstreamServer.on('upgrade', function(req, socket, head) {
+    upstreamServer.on('upgrade', function(req, socket/*, head*/) {
       socket.on('end', function() {
         socket.destroy();
       });
@@ -118,7 +120,7 @@ describe('Client', function() {
                    'Upgrade: TLS\r\n' +
                    'Connection: Upgrade\r\n' +
                    '\r\n');
-                   
+
       var securePair = tls.createSecurePair(
         crypto.createCredentials({
          key: SERVER_OPTIONS.key,
@@ -174,7 +176,7 @@ describe('Client', function() {
       });
     });
   });
-  
+
   // TODO: would be better if the error could be
   // propagated, perhaps by having the upstream
   // connection emit an error instead of just being
@@ -186,7 +188,7 @@ describe('Client', function() {
       'closed'
     ], done);
     var upstreamServer = http.createServer();
-    upstreamServer.on('upgrade', function(req, socket, head) {
+    upstreamServer.on('upgrade', function(req, socket/*, head*/) {
       socket.on('end', function() {
         socket.destroy();
       });
@@ -194,7 +196,7 @@ describe('Client', function() {
                    'Upgrade: TLS\r\n' +
                    'Connection: Upgrade\r\n' +
                    '\r\n');
-                   
+
       var securePair = tls.createSecurePair(
         crypto.createCredentials({
          key: SERVER_OPTIONS.key,

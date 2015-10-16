@@ -1,3 +1,5 @@
+// Strict mode.
+'use strict';
 
 var http = require('http'),
     crypto = require('crypto'),
@@ -19,7 +21,7 @@ function MockClient(options) {
         'Upgrade': 'TLS'
       }
     });
-    request.on('upgrade', function(res, sock, upgradeHead) {
+    request.on('upgrade', function(res, sock/*, upgradeHead*/) {
       socket = sock;
       var securePair = tls.createSecurePair(
        crypto.createCredentials({

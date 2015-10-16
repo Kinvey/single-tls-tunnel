@@ -1,3 +1,6 @@
+// Strict mode.
+'use strict';
+
 var net = require('net'),
     spawn = require('child_process').spawn;
 var server = net.createServer({

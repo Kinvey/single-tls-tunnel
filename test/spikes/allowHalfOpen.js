@@ -1,3 +1,6 @@
+// Strict mode.
+'use strict';
+
 var net = require('net');
 
 var server = net.createServer({
@@ -11,7 +14,7 @@ var server = net.createServer({
   });
   connection.on('close', function() {
     console.log('close');
-  })
+  });
 });
 server.listen(8080, function() {
   var connection = net.connect({

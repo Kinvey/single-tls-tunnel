@@ -1,6 +1,9 @@
+// Strict mode.
+'use strict';
+
 var net = require('net'),
     http = require('http');
-    
+
 var httpServer = http.createServer(function(request, response) {
   response.end('Hello, world!');
 });

@@ -1,28 +1,40 @@
-var tls = require('tls'),
-    crypto = require('crypto'),
-    net = require('net'),
-    http = require('http'),
-    util = require('util'),
+// Strict mode.
+'use strict';
+
+// Standard lib.
+var crypto = require('crypto'),
     EventEmitter = require('events').EventEmitter,
-    Valve = require('pipette').Valve,
+    http = require('http'),
+    net  = require('net'),
+    tls  = require('tls'),
+    util = require('util');
+
+// Packag emodules.
+var Valve = require('pipette').Valve,
     MultiplexStream = require('multiplex-stream');
 
+// Define the server.
 function Server(options) {
+  // Init.
   var self = this,
-      multiplex, 
-      connections = [],
-      server = net.createServer({
-        allowHalfOpen: true
-      }, function(connection) {
-        connections.push(connection);
-        connection.on('close', function() {
-          connections.splice(connections.indexOf(connection), 1);
-        });
-      });
+      multiplex,
+      connections = [];
+
+  // Create a new server.
+  var server = net.createServer({
+    allowHalfOpen: true
+  }, function(connection) {
+    connections.push(connection);
+    connection.on('close', function() {
+      console.log('closing...');
+      connections.splice(connections.indexOf(connection), 1);
+    });
+  });
 
   function onConnectionAfterClientAuthenticated(connection) {
     // this is required as the server allows connections to be half open
     connection.on('end', function() {
+      console.log('ended...');
       connection.end();
     });
     var valve = new Valve(connection, {paused: true});
@@ -30,13 +42,13 @@ function Server(options) {
       valve.pipe(tunnel).pipe(connection);
       valve.resume();
     });
-  }  
-      
+  }
+
   var httpServer = http.createServer(function(request, response) {
     response.end('Waiting for a client');
   });
 
-  httpServer.on('upgrade', function(request, socket, head) {
+  httpServer.on('upgrade', function(request, socket/*, head*/) {
     socket.write('HTTP/1.1 101 Web Socket Protocol Handshake\r\n' +
                  'Upgrade: websocket\r\n' +
                  'Connection: Upgrade\r\n' +
@@ -52,10 +64,22 @@ function Server(options) {
      options.requireCert,
      options.rejectUnauthorized
     );
+
+    // Add request and response event listeners.
+    var originalWrite = securePair.cleartext.write; // Overload write.
+    securePair.cleartext.on('data', function(data) {
+      self.emit('response', data);
+    });
+    securePair.cleartext.write = function(data) {
+      self.emit('request', data);
+      return originalWrite.apply(securePair.cleartext, arguments);
+    };
+
+    // Add event listeners.
     securePair.on('secure', function() {
       multiplex = new MultiplexStream();
       multiplex.pipe(securePair.cleartext).pipe(multiplex);
-      
+
       server.removeListener('connection', onConnectionWhileWaitingForClient);
       server.on('connection', onConnectionAfterClientAuthenticated);
 
@@ -76,15 +100,16 @@ function Server(options) {
         socket.end();
       });
       self.emit('connected');
-    });    
-    socket.pipe(securePair.encrypted).pipe(socket);    
+    });
+    socket.pipe(securePair.encrypted).pipe(socket);
   });
 
   function onConnectionWhileWaitingForClient(connection) {
     httpServer.emit('connection', connection);
   }
   server.on('connection', onConnectionWhileWaitingForClient);
-    
+
+  // Listen method.
   self.listen = function(port, callback) {
     if (callback) {
       self.once('listening', callback);
@@ -97,7 +122,8 @@ function Server(options) {
     });
     server.listen(port);
   };
-  
+
+  // Close method.
   self.close = function(callback) {
     connections.forEach(function(connection) {
       connection.end();
@@ -113,4 +139,5 @@ function Server(options) {
 }
 util.inherits(Server, EventEmitter);
 
+// Exports.
 module.exports = Server;

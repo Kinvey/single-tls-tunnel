@@ -1,5 +1,7 @@
-var expect = require('chai').expect,
-    net = require('net'),
+// Strict mode.
+'use strict';
+
+var net = require('net'),
     http = require('http'),
     tls = require('tls'),
     https = require('https'),
@@ -22,7 +24,7 @@ var UPSTREAM_PORT = 8080,
 var DOWNSTREAM_SERVER_OPTIONS = {
   key: DOWNSTREAM_SERVER_KEY,
   cert: DOWNSTREAM_SERVER_CERT,
-  ca: [UPSTREAM_CLIENT_CERT], 
+  ca: [UPSTREAM_CLIENT_CERT],
   requireCert: true,
   rejectUnauthorized: true
 };
@@ -48,7 +50,7 @@ var UPSTREAM_HTTPS_OPTIONS = {
 var SERVER_OPTIONS = {
   key: SERVER_KEY,
   cert: SERVER_CERT,
-  ca: [CLIENT_CERT], 
+  ca: [CLIENT_CERT],
   requireCert: true,
   rejectUnauthorized: true
 };
@@ -60,7 +62,7 @@ var CLIENT_UPSTREAM_OPTIONS = {
   ca: [SERVER_CERT],
   rejectUnauthorized: true
 };
-    
+
 var CLIENT_DOWNSTREAM_OPTIONS = {
   port: DOWNSTREAM_PORT
 };
@@ -122,7 +124,7 @@ describe('single-tls-tunnel', function() {
       'GET 2',
       'Hello, upstream',
       'end upstream 2'
-    ], function(error) {      
+    ], function(error) {
       if (error) {
         done(error);
       } else {
@@ -206,7 +208,7 @@ describe('single-tls-tunnel', function() {
       'GET 2',
       'Hello, upstream',
       'end upstream 2'
-    ], function(error) {      
+    ], function(error) {
       if (error) {
         done(error);
       } else {

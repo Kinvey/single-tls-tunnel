@@ -1,3 +1,6 @@
+// Strict mode.
+'use strict';
+
 // TODO:
 // Should reject clients that do not request upgrades correctly
 // Should reject unauthorized clients
@@ -5,14 +8,9 @@
 
 var expect = require('chai').expect,
     http = require('http'),
-    crypto = require('crypto'),
-    tls = require('tls'),
     fs = require('fs'),
     net = require('net'),
     Checklist = require('checklist'),
-    MultiplexStream = require('multiplex-stream'),
-    util = require('util'),
-    EventEmitter = require('events').EventEmitter,
     Server = require('../../src/Server'),
     spawn = require('child_process').spawn,
     MockClient = require('../support/MockClient');
@@ -26,7 +24,7 @@ var PORT = 8080,
 var SERVER_OPTIONS = {
   key: SERVER_KEY,
   cert: SERVER_CERT,
-  ca: [CLIENT_CERT], 
+  ca: [CLIENT_CERT],
   requireCert: true,
   rejectUnauthorized: true,
   timeout: 500
@@ -56,7 +54,7 @@ describe('Server', function() {
       });
     });
   });
-  
+
   it('should initially listen on the given port for HTTP upgrade requests and upgrade the socket to TLS', function(done) {
     var server = new Server(SERVER_OPTIONS);
     server.listen(PORT, function() {
@@ -85,7 +83,7 @@ describe('Server', function() {
       });
     });
   });
-  
+
   it('should accept a new client after a client disconnects', function(done) {
     var server = new Server(SERVER_OPTIONS);
     server.listen(PORT, function() {
@@ -100,7 +98,7 @@ describe('Server', function() {
         client2.connect(function() {
           client2.multiplex.on('connection', function(downstreamConnection) {
             downstreamConnection.setEncoding('utf8');
-            downstreamConnection.on('data', function(data) {
+            downstreamConnection.on('data', function(/*data*/) {
               downstreamConnection.end('Hello, upstream');
             });
             downstreamConnection.on('end', function() {
@@ -110,7 +108,7 @@ describe('Server', function() {
             port: PORT
           }, function() {
             upstreamConnection.setEncoding('utf8');
-            upstreamConnection.on('data', function(data) {
+            upstreamConnection.on('data', function(/*data*/) {
             });
             upstreamConnection.on('end', function() {
               client2.end();
@@ -122,7 +120,7 @@ describe('Server', function() {
       client1.connect(function() {
         client1.multiplex.on('connection', function(downstreamConnection) {
           downstreamConnection.setEncoding('utf8');
-          downstreamConnection.on('data', function(data) {
+          downstreamConnection.on('data', function(/*data*/) {
             downstreamConnection.end('Hello, upstream');
           });
           downstreamConnection.on('end', function() {
@@ -132,7 +130,7 @@ describe('Server', function() {
           port: PORT
         }, function() {
           upstreamConnection.setEncoding('utf8');
-          upstreamConnection.on('data', function(data) {
+          upstreamConnection.on('data', function(/*data*/) {
           });
           upstreamConnection.on('end', function() {
             client1.end();
@@ -216,14 +214,14 @@ describe('Server', function() {
   describe('once a client is connected', function() {
     var server = new Server(SERVER_OPTIONS),
         client;
-        
+
     before(function(done) {
       server.listen(PORT, function() {
         client = new MockClient(CLIENT_OPTIONS);
         client.connect(done);
-      });   
+      });
     });
-    
+
     it('should listen for any connections on the given port and when connected, create a new multiplexed stream to the client', function(done) {
       var checklist = new Checklist([
         'upstream connected',
@@ -267,7 +265,7 @@ describe('Server', function() {
         upstreamConnection.write('Hello, downstream');
       });
     });
-    
+
     after(function(done) {
       client.on('end', function() {
         server.close(done);

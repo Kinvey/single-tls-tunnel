@@ -1,16 +1,23 @@
-var http = require('http'),
-    crypto = require('crypto'),
-    tls = require('tls'),
-    util = require('util'),
-    MultiplexStream = require('multiplex-stream'),
-    net = require('net'),
-    Valve = require('pipette').Valve,
-    EventEmitter = require('events').EventEmitter;
+// Strict mode.
+'use strict';
 
+// Standard lib.
+var crypto = require('crypto'),
+    EventEmitter = require('events').EventEmitter,
+    http = require('http'),
+    net  = require('net'),
+    tls  = require('tls'),
+    util = require('util');
+
+// Package modules.
+var MultiplexStream = require('multiplex-stream'),
+    Valve = require('pipette').Valve;
+
+// Define the client.
 function Client(upstreamOptions, downstreamOptions) {
   var self = this,
       connection;
-  
+
   self.connect = function(callback) {
     var options = {
       host: upstreamOptions.host,
@@ -25,7 +32,7 @@ function Client(upstreamOptions, downstreamOptions) {
     request.on('error', function(error) {
       self.emit('error', error);
     });
-    request.on('upgrade', function(res, socket, upgradeHead) {
+    request.on('upgrade', function(res, socket/*, upgradeHead*/) {
       var securePair = tls.createSecurePair(
        crypto.createCredentials({
          key: upstreamOptions.key,
@@ -61,7 +68,7 @@ function Client(upstreamOptions, downstreamOptions) {
             valve.pipe(downstreamConnection).pipe(upstreamConnection);
             valve.resume();
           });
-          downstreamConnection.on('error', function(error) {
+          downstreamConnection.on('error', function(/*error*/) {
             upstreamConnection.end();
           });
         });
@@ -74,11 +81,12 @@ function Client(upstreamOptions, downstreamOptions) {
     });
     request.end();
   };
-  
+
   self.end = function() {
     connection.end();
   };
 }
 util.inherits(Client, EventEmitter);
 
+// Exports.
 module.exports = Client;

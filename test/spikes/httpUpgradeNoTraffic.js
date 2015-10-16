@@ -1,3 +1,6 @@
+// Strict mode.
+'use strict';
+
 var http = require('http'),
     tls = require('tls'),
     fs = require('fs'),
@@ -10,7 +13,7 @@ var PORT = 8080,
     CLIENT_CERT = fs.readFileSync('./test/keys/client-cert.pem');
 
 var server = http.createServer();
-server.on('upgrade', function(req, socket, head) {
+server.on('upgrade', function(req, socket/*, head*/) {
   socket.on('end', function() {
     console.log('server socket ended');
     // Have to end the socket here too as HTTP servers allow sockets to be half open
@@ -21,7 +24,7 @@ server.on('upgrade', function(req, socket, head) {
                'Upgrade: TLS\r\n' +
                'Connection: Upgrade\r\n' +
                '\r\n');
-               
+
   var securePair = tls.createSecurePair(
     crypto.createCredentials({
      key: SERVER_KEY,
@@ -46,7 +49,7 @@ server.listen(PORT, function() {
   };
 
   var request = http.request(options);
-  request.on('upgrade', function(res, socket, upgradeHead) {
+  request.on('upgrade', function(res, socket/*, upgradeHead*/) {
     var securePair = tls.createSecurePair(
      crypto.createCredentials({
        key: CLIENT_KEY,
@@ -67,7 +70,7 @@ server.listen(PORT, function() {
 
     securePair.on('secure', function() {
       securePair.cleartext.end();
-    })
+    });
 
     socket.pipe(securePair.encrypted).pipe(socket);
   });
