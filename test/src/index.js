@@ -30,6 +30,7 @@ var DOWNSTREAM_SERVER_OPTIONS = {
 };
 
 var UPSTREAM_CLIENT_OPTIONS = {
+  host: 'localhost', // Required.
   port: UPSTREAM_PORT,
   key: UPSTREAM_CLIENT_KEY,
   cert: UPSTREAM_CLIENT_CERT,

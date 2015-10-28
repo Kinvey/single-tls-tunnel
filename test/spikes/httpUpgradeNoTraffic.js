@@ -1,10 +1,14 @@
 // Strict mode.
 'use strict';
 
-var http = require('http'),
-    tls = require('tls'),
-    fs = require('fs'),
-    crypto = require('crypto');
+// Standard lib.
+var crypto = require('crypto'),
+    fs     = require('fs'),
+    http   = require('http'),
+    tls    = require('tls');
+
+// Configure (Node.js >=0.12 uses `tls`, <0.12 `crypto`).
+var createSecureContext = tls.createSecureContext || crypto.createCredentials;
 
 var PORT = 8080,
     SERVER_KEY = fs.readFileSync('./test/keys/server-key.pem'),
@@ -26,10 +30,10 @@ server.on('upgrade', function(req, socket/*, head*/) {
                '\r\n');
 
   var securePair = tls.createSecurePair(
-    crypto.createCredentials({
-     key: SERVER_KEY,
-     cert: SERVER_CERT,
-     ca: [CLIENT_CERT]
+    createSecureContext({
+      key: SERVER_KEY,
+      cert: SERVER_CERT,
+      ca: [CLIENT_CERT]
     }),
     true,
     true,
@@ -51,10 +55,10 @@ server.listen(PORT, function() {
   var request = http.request(options);
   request.on('upgrade', function(res, socket/*, upgradeHead*/) {
     var securePair = tls.createSecurePair(
-     crypto.createCredentials({
-       key: CLIENT_KEY,
-       cert: CLIENT_CERT,
-       ca: [SERVER_CERT]
+      createSecureContext({
+        key: CLIENT_KEY,
+        cert: CLIENT_CERT,
+        ca: [SERVER_CERT]
      }),
      false,
      true,

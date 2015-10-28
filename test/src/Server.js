@@ -169,7 +169,7 @@ describe('Server', function() {
 
   it('should accept a new client after a client is destroyed', function(done) {
     var server = new Server(SERVER_OPTIONS);
-    server.on('disconnected', function() {
+    server.once('disconnected', function() { // Triggers after client1 disconnects.
       var client2 = new MockClient(CLIENT_OPTIONS);
       client2.on('end', function() {
         server.close(function() {
@@ -190,7 +190,7 @@ describe('Server', function() {
 
   it('should accept a new client after a client is killed', function(done) {
     var server = new Server(SERVER_OPTIONS);
-    server.on('disconnected', function() {
+    server.once('disconnected', function() { // Trigger after client is killed.
       var client = new MockClient(CLIENT_OPTIONS);
       client.on('end', function() {
         server.close(function() {

@@ -1,12 +1,18 @@
 // Strict mode.
 'use strict';
 
-var http = require('http'),
-    crypto = require('crypto'),
-    tls = require('tls'),
-    MultiplexStream = require('multiplex-stream'),
-    util = require('util'),
-    EventEmitter = require('events').EventEmitter;
+// Standard lib.
+var crypto = require('crypto'),
+    EventEmitter = require('events').EventEmitter,
+    http = require('http'),
+    tls  = require('tls'),
+    util = require('util');
+
+// Package modules.
+var MultiplexStream = require('multiplex-stream');
+
+// Configure (Node.js >=0.12 uses `tls`, <0.12 `crypto`).
+var createSecureContext = tls.createSecureContext || crypto.createCredentials;
 
 function MockClient(options) {
   var self = this,
@@ -24,10 +30,10 @@ function MockClient(options) {
     request.on('upgrade', function(res, sock/*, upgradeHead*/) {
       socket = sock;
       var securePair = tls.createSecurePair(
-       crypto.createCredentials({
-         key: options.key,
-         cert: options.cert,
-         ca: options.ca
+        createSecureContext({
+          key: options.key,
+          cert: options.cert,
+          ca: options.ca
        }),
        false,
        true,

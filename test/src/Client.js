@@ -6,15 +6,23 @@
 // Should reject incorrect upgrade response
 // Should retry when connections are ended? (could be due to other connection requests blocking)
 
-var expect = require('chai').expect,
-    http = require('http'),
-    crypto = require('crypto'),
-    tls = require('tls'),
-    net = require('net'),
-    MultiplexStream = require('multiplex-stream'),
-    Checklist = require('checklist'),
-    fs = require('fs'),
-    Client = require('../../src/Client');
+// Standard lib.
+var crypto = require('crypto'),
+    fs     = require('fs'),
+    http   = require('http'),
+    net    = require('net'),
+    tls    = require('tls');
+
+// Package modules.
+var Checklist = require('checklist'),
+    expect    = require('chai').expect,
+    MultiplexStream = require('multiplex-stream');
+
+// Local modules.
+var Client = require('../../src/Client');
+
+// Configure (Node.js >=0.12 uses `tls`, <0.12 `crypto`).
+var createSecureContext = tls.createSecureContext || crypto.createCredentials;
 
 var UPSTREAM_PORT = 8080,
     DOWNSTREAM_PORT = 8081,
@@ -62,10 +70,10 @@ describe('Client', function() {
                    '\r\n');
 
       var securePair = tls.createSecurePair(
-        crypto.createCredentials({
-         key: SERVER_OPTIONS.key,
-         cert: SERVER_OPTIONS.cert,
-         ca: SERVER_OPTIONS.ca
+        createSecureContext({
+          key: SERVER_OPTIONS.key,
+          cert: SERVER_OPTIONS.cert,
+          ca: SERVER_OPTIONS.ca
         }),
         true,
         SERVER_OPTIONS.requireCert,
@@ -122,10 +130,10 @@ describe('Client', function() {
                    '\r\n');
 
       var securePair = tls.createSecurePair(
-        crypto.createCredentials({
-         key: SERVER_OPTIONS.key,
-         cert: SERVER_OPTIONS.cert,
-         ca: SERVER_OPTIONS.ca
+        createSecureContext({
+          key: SERVER_OPTIONS.key,
+          cert: SERVER_OPTIONS.cert,
+          ca: SERVER_OPTIONS.ca
         }),
         true,
         SERVER_OPTIONS.requireCert,
@@ -198,10 +206,10 @@ describe('Client', function() {
                    '\r\n');
 
       var securePair = tls.createSecurePair(
-        crypto.createCredentials({
-         key: SERVER_OPTIONS.key,
-         cert: SERVER_OPTIONS.cert,
-         ca: SERVER_OPTIONS.ca
+        createSecureContext({
+          key: SERVER_OPTIONS.key,
+          cert: SERVER_OPTIONS.cert,
+          ca: SERVER_OPTIONS.ca
         }),
         true,
         SERVER_OPTIONS.requireCert,

@@ -13,6 +13,9 @@ var crypto = require('crypto'),
 var Valve = require('pipette').Valve,
     MultiplexStream = require('multiplex-stream');
 
+// Configure (Node.js >=0.12 uses `tls`, <0.12 `crypto`).
+var createSecureContext = tls.createSecureContext || crypto.createCredentials;
+
 // Define the server.
 function Server(options) {
   // Init.
@@ -55,7 +58,7 @@ function Server(options) {
                  '\r\n');
 
     var securePair = tls.createSecurePair(
-     crypto.createCredentials({
+     createSecureContext({
        key: options.key,
        cert: options.cert,
        ca: options.ca
