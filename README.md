@@ -1,5 +1,6 @@
 single-tls-tunnel
 =================
+> Fork from [original single-tls-tunnel project](https://github.com/pghalliday/single-tls-tunnel).
 
 A single port TLS tunnel implementation to support a single downstream client proxy
 
@@ -27,9 +28,9 @@ var Server = require('single-tls-tunnel').Server;
 var server = new Server({
   key: SERVER_KEY,
   cert: SERVER_CERT,
-  ca: [CLIENT_CERT], 
+  ca: [CLIENT_CERT],
   requireCert: true,
-  rejectUnauthorized: true  
+  rejectUnauthorized: true
 });
 
 server.listen(PUBLIC_PORT, function() {
@@ -78,5 +79,5 @@ In lieu of a formal styleguide, take care to maintain the existing coding style.
 _(Nothing yet)_
 
 ## License
-Copyright (c) 2012 Peter Halliday  
+Copyright (c) 2012 Peter Halliday
 Licensed under the MIT license.
